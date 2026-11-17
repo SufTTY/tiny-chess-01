@@ -296,6 +296,18 @@
    "role": "assistant",
    "content": "Committed as 297878ac8eff333814351486bbb519d69e00335f and pushed to github.com/SufTTY/tiny-chess-01 (master and main; default branch main). Local grades confirm: no time losses, replay byte for byte identical, exit code 0, main.py 3747 bytes, repository total 6599 bytes. Honest status: still below the house baseline locally (~700 Elo vs the 1154 floor); known gaps: no transposition table, no repetition/50-move scoring inside the search, material+PST-only eval. Submitting as the slot-1 probe to pass intake and read the leaderboard; slots 2-3 iterate on TT and repetition scores.",
    "timestamp": "2026-11-17T01:33:00Z"
+  },
+  {
+   "role": "user",
+   "content": "Upgrade the kept tiny-chess-01 entry (strongest 4KB Python chess engine, rank by elo) and re-submit. Slug: tiny-chess-01."
+  },
+  {
+   "role": "assistant",
+   "content": "Fetched the leaderboard: everyone who wins all games is pinned at elo 2110, so the tie-break spare_plies decides ranks; our kept entry (01a1e736) shows 2110 with 991 spare plies and rank 1 has 1082. Plan: raise search depth per move without risking the 1800s trial wall clock. Tested three candidates against engine2 with a fixed-depth node-count bench on 4 positions (kiwipete, WAC puzzle, rook endgame, start): (1) transposition table with per-node hash of the 120-square board - a clear net loss, hashing costs more than TT saves at these depths; rejected. (2) null-move pruning (R=2, d>=3, non-pawn material guard) plus history heuristic - measurably worse, e.g. 862k nodes vs 511k at depth 4 on the WAC puzzle; rejected. (3) adaptive per-move node budget: keep the proven 80k PVS+quiescence core but run 110k nodes/move while trial elapsed < 700s, 80k to 1200s, then throttle to 40k so the whole trial can never hit the wall. Chose (3): strictly deeper search early when time is plentiful, bounded late-game cost, no new per-node overhead. Verified move generation still correct via perft (Kiwipete: 48/2039/97862)."
+  },
+  {
+   "role": "assistant",
+   "content": "Wrote engine3.py (13107 bytes) as engine2 + adaptive budget, ran the kit packer: makefun compress engine3.py --out main.py -> main.py 3805 bytes, sha256 2f112c90ee7a5cf127cd38b32ab0c31906fe0ff3a54d69fb17ace6c4549d837b, under the 4096-byte cap. Committed as a2097be. Next: docker grade-local on the new commit, bundle hand-over transcripts, kit check, push to GitHub, verify commit via API, submit."
   }
  ]
 }
